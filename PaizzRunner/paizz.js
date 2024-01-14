@@ -371,9 +371,9 @@ Vector.prototype.minDist = function(vec) {
   return Math.sqrt(minDist);
 };
 
-/**
- * The player object
- */
+
+ /////////////////////// The player object /////////////////////////////
+ 
 var player = (function(player) {
   // add properties directly to the player imported object
   player.width     = 120;
@@ -398,9 +398,9 @@ var player = (function(player) {
 
   var jumpCounter = 0;  // how long the jump button can be pressed down
 
-  /**
-   * Update the player's position and animation
-   */
+  
+   /////////////////Update the player's position and animation////////////////
+   
   player.update = function() {
 
     // jump if not currently jumping or falling
@@ -631,11 +631,13 @@ function spawnSprites() {
   else if (platformLength > 0) {
     var type = getType();
 
-    ground.push(new Sprite(
-      canvas.width + (platformWidth - 5) % player.speed,
-      platformBase - platformHeight * platformSpacer,
-      type
-    ));
+    ground.push(
+      new Sprite(
+        canvas.width + (platformWidth - 5) % player.speed,
+        platformBase - platformHeight * platformSpacer,
+        type
+      )
+    );
     platformLength--;
 
     // add random environment sprites
@@ -646,54 +648,88 @@ function spawnSprites() {
   }
   // start over
   else {
+    // Adjust these values based on the new canvas dimensions (1920x1080)
+    var canvasWidth = 1920;
+    var platformWidthMultiplier = 3;
+
     // increase gap length every speed increase of 4
     gapLength = rand(player.speed - 2, player.speed);
+
     // only allow a ground to increase by 1
     platformHeight = bound(rand(0, platformHeight + rand(0, 2)), 0, 4);
-    platformLength = rand(Math.floor(player.speed/2), player.speed * 4);
+
+    // Adjust the platform length based on the canvas width and multiplier
+    platformLength = rand(
+      Math.floor((player.speed / platformWidthMultiplier) * canvasWidth),
+      player.speed * platformWidthMultiplier
+    );
   }
 }
+
 
 
 /**
  * Spawn new environment sprites off screen
  */
 function spawnEnvironmentSprites() {
+  // Adjust these values based on the new canvas dimensions (1920x1080)
+  var canvasWidth = 1920;
+  var platformWidthMultiplier = 3;
+
   if (score > 40 && rand(0, 20) === 0 && platformHeight < 3) {
     if (Math.random() > 0.5) {
-      environment.push(new Sprite(
-        canvas.width + platformWidth % player.speed,
-        platformBase - platformHeight * platformSpacer - platformWidth,
-        'plant'
-      ));
-    }
-    else if (platformLength > 2) {
-      environment.push(new Sprite(
-        canvas.width + platformWidth % player.speed,
-        platformBase - platformHeight * platformSpacer - platformWidth,
-        'bush1'
-      ));
-      environment.push(new Sprite(
-        canvas.width + platformWidth % player.speed + platformWidth,
-        platformBase - platformHeight * platformSpacer - platformWidth,
-        'bush2'
-      ));
+      environment.push(
+        new Sprite(
+          canvasWidth + (platformWidth % player.speed),
+          platformBase - platformHeight * platformSpacer - platformWidth,
+          'plant'
+        )
+      );
+    } else if (platformLength > 2) {
+      environment.push(
+        new Sprite(
+          canvasWidth + (platformWidth % player.speed),
+          platformBase - platformHeight * platformSpacer - platformWidth,
+          'bush1'
+        )
+      );
+      environment.push(
+        new Sprite(
+          canvasWidth +
+            (platformWidth % player.speed) +
+            platformWidth * platformWidthMultiplier,
+          platformBase - platformHeight * platformSpacer - platformWidth,
+          'bush2'
+        )
+      );
     }
   }
 }
-
 /**
  * Spawn new enemy sprites off screen
  */
 function spawnEnemySprites() {
-  if (score > 100 && Math.random() > 0.96 && enemies.length < 3 && platformLength > 5 &&
-      (enemies.length ? canvas.width - enemies[enemies.length-1].x >= platformWidth * 3 ||
-       canvas.width - enemies[enemies.length-1].x < platformWidth : true)) {
-    enemies.push(new Sprite(
-      canvas.width + platformWidth % player.speed,
-      platformBase - platformHeight * platformSpacer - platformWidth,
-      Math.random() > 0.5 ? 'spikes' : 'slime'
-    ));
+  // Adjust these values based on the new canvas dimensions (1920x1080)
+  var canvasWidth = 1920;
+  var platformWidthMultiplier = 3;
+
+  if (
+    score > 100 &&
+    Math.random() > 0.96 &&
+    enemies.length < 3 &&
+    platformLength > 5 &&
+    (enemies.length
+      ? canvasWidth - enemies[enemies.length - 1].x >= platformWidth * platformWidthMultiplier ||
+        canvasWidth - enemies[enemies.length - 1].x < platformWidth
+      : true)
+  ) {
+    enemies.push(
+      new Sprite(
+        canvasWidth + (platformWidth % player.speed),
+        platformBase - platformHeight * platformSpacer - platformWidth,
+        Math.random() > 0.5 ? 'spikes' : 'slime'
+      )
+    );
   }
 }
 
@@ -714,8 +750,12 @@ function animate() {
     updateGround();
     updateEnemies();
 
-    // draw the score
-    ctx.fillText('Score: ' + score + 'm', canvas.width - 140, 30);
+    // Assuming ctx is your canvas context
+    ctx.fillStyle = 'white'; // Set the text color to white
+    ctx.font = '25px serif'; // Set the font size and family
+
+    // Draw the text
+    ctx.fillText('SCORE : ' + score + 'M', canvas.width - 165, 125);
 
     // spawn a new Sprite
     if (ticker % Math.floor(platformWidth / player.speed) === 0) {
@@ -820,7 +860,7 @@ function startGame() {
   platformLength = 15;
   gapLength = 0;
 
-  ctx.font = '16px arial, sans-serif';
+  ctx.font = '16px arial black, serif';
 
   for (var i = 0; i < 30; i++) {
     ground.push(new Sprite(i * (platformWidth-3), platformBase - platformHeight * platformSpacer, 'grass'));
